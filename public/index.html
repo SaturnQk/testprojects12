@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Тест Спасибо</title>
+</head>
+<body>
+    <h1>😁</h1>
+    <script>
+        fetch('/collect', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                userAgent: navigator.userAgent,
+                time: new Date().toLocaleString()
+            })
+        });
+    </script>
+</body>
+</html>
