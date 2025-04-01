@@ -3,7 +3,7 @@ const TelegramBot = require('node-telegram-bot-api');
 const app = express();
 
 // Токен твоего нового бота
-const TOKEN = '1234567890:AAF1w_PlojpJ8GCkTKIPvinNiGomB6gqQEo'; // Замени на токен от BotFather
+const TOKEN = '8146798319:AAEZa9maCzyOWY6DWQ4MccWYszgMwWP2N-I'; // Замени на токен от BotFather
 const bot = new TelegramBot(TOKEN, { polling: true });
 
 // Простая логика ответов на основе ключевых слов
