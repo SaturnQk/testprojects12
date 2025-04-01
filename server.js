@@ -4,7 +4,7 @@ const axios = require('axios');
 const app = express();
 
 // Токен твоего бота (замени на свой)
-const TOKEN = '1234567890:AAF1w_PlojpJ8GCkTKIPvinNiGomB6gqQEo'; // Вставь токен от BotFather
+const TOKEN = '8146798319:AAEZa9maCzyOWY6DWQ4MccWYszgMwWP2N-I'; // Вставь токен от BotFather
 const bot = new TelegramBot(TOKEN, { polling: true });
 
 // Словарь дружелюбных ответов
